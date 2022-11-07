@@ -1,0 +1,13 @@
+#disas 1013c4
+  1013c4:	01000413          	li	s0,16
+	for(int i = 0; i < 16; ++i) {
+  1013c8:	fff40413          	addi	s0,s0,-1
+		test();
+  1013cc:	f9dff0ef          	jal	ra,101368 <test>
+	for(int i = 0; i < 16; ++i) {
+  1013d0:	fe041ce3          	bnez	s0,1013c8 <icache_test+0x58>
+
+00101368 <test>:
+  101368:	00000013          	nop
+}
+  10136c:	00008067          	ret

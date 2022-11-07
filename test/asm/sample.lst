@@ -1,0 +1,27 @@
+#disas 10139c
+  10139c:	b0402673          	csrr	a2,mhpmcounter4
+  1013a0:	02c7aa23          	sw	a2,52(a5)
+  1013a4:	b02026f3          	csrr	a3,minstret
+  1013a8:	02d7a623          	sw	a3,44(a5)
+  1013ac:	b0002773          	csrr	a4,mcycle
+  1013b0:	00e7aa23          	sw	a4,20(a5)
+	test();
+  1013b4:	fb5ff0ef          	jal	ra,101368 <test>
+	test();
+  1013b8:	fb1ff0ef          	jal	ra,101368 <test>
+	test();
+  1013bc:	fadff0ef          	jal	ra,101368 <test>
+	test();
+  1013c0:	fa9ff0ef          	jal	ra,101368 <test>
+	test();
+  1013c4:	fa5ff0ef          	jal	ra,101368 <test>
+	test();
+  1013c8:	fa1ff0ef          	jal	ra,101368 <test>
+  
+  1013cc:	b0002673          	csrr	a2,mcycle
+  1013d0:	b02026f3          	csrr	a3,minstret
+  1013d4:	b0402773          	csrr	a4,mhpmcounter4
+
+00101368 <test>:
+  101368:	00000013          	nop
+  10136c:	00008067          	ret
