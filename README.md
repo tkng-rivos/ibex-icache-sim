@@ -1,28 +1,35 @@
 # Ibex Core I-Cache Simulation
 
-This repo contains a very simple cache simulator for the Ibex Core by lowRISC. It
-is NOT a 100% accurate model! In particular, some things cannot be simulated without
-dramatically increasing the complexity, and you might as well simulate the whole
-system at that point.
+This repo contains a very simple cache simulator for the Ibex Core by lowRISC to
+model cache hits/misses. It is NOT a 100% accurate model! In particular, cache
+eviction cannot be simulated without dramatically increasing the complexity, and
+you might as well simulate the whole system at that point.
+
+Details: Cache eviction is partially based off a pseudorandom generator, which
+is implemented by a simple round-robin, 1-hot signal that updates every cycle.
+This would require simulating core cycles, and you'd be better off using a tool
+like Verilator to simulate the system.
 
 ## Requirements
 * Python 3.10+
 * pandas 1.5+
 
 ## Usage
-See `test/test.py` for an explicit example.
+See below for explicit examples.
 ```python
-from ibex_icache import ICacheSim,
-from icache
+from ibex_icache.icache import CacheConfiguration, IbexICache
+from ibex_icache.sim import ICacheSim
 ```
 
-First, create a cache configuration with size (bytes), # of ways, and line size (bytes):
+First, create a cache configuration with size (bytes), # of ways, and line size
+(bytes):
 ```python
 # Default configuration
 cache_config = CacheConfiguration(size = 4096, ways = 2, line_size = 8)
 ```
 
-Next, instantiate the cache. This takes in instruction width (always 32) and the cache config.
+Next, instantiate the cache. This takes in instruction width (always 32) and the
+cache config.
 ```python
 cache = IbexICache(32, cache_config)
 ```
@@ -32,13 +39,15 @@ Instantiate the cache simulation instance.
 cache_sim = ICacheSim()
 ```
 
-Load RISC-V instructions from a file. The file must have a header formatted like so:
+Load RISC-V instructions from a file. The file must have a header formatted like
+so:
 ```
 #disas <start_addr>
 ```
-The `#disas` indicates to the parser that the file comes from a disassembler, and
-`<start_addr>` is where the simulator will initially set the program counter.
-Currently, the parser and simulation only works with noncompressed instructions.
+The `#disas` indicates to the parser that the file comes from a disassembler,
+and `<start_addr>` is where the simulator will initially set the program
+counter. Currently, the parser and simulation only works with noncompressed
+instructions.
 
 Supported instructions so far:
 ```
@@ -50,6 +59,7 @@ bge, bgez
 li
 addi
 ```
+**NOTE**: For now, signed and unsigned operations are treated as signed. 
 
 Load the instructions:
 ```
@@ -69,7 +79,8 @@ cache_sim.print_result()
 ```
 
 ## Samples
-In `test/asm` there are a few sample diassemblies to try. Running
+The `test` folder has some working samples. In `test/asm` there are a few sample
+diassemblies to try. Running
 ```python
 python3 branch.py
 ```
