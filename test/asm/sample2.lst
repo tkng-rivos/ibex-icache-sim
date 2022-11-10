@@ -1,0 +1,50 @@
+#disas 1013e4
+void icache_test()
+{
+  1013e4:	b0402673          	csrr	a2,mhpmcounter4
+  1013e8:	02c7aa23          	sw	a2,52(a5)
+  1013ec:	b02026f3          	csrr	a3,minstret
+  1013f0:	02d7a623          	sw	a3,44(a5)
+  1013f4:	b0002773          	csrr	a4,mcycle
+  1013f8:	00e7aa23          	sw	a4,20(a5)
+  1013fc:	01000413          	li	s0,16
+	for(int i = 0; i < 16; ++i) {
+  101400:	fff40413          	addi	s0,s0,-1
+		test();
+  101404:	f65ff0ef          	jal	ra,101368 <test>
+	for(int i = 0; i < 16; ++i) {
+  101408:	fe041ce3          	bnez	s0,101400 <icache_test+0x58>
+	}
+	if(x == 0) {
+  10140c:	04090463          	beqz	s2,101454 <icache_test+0xac>
+	                //   "nop\n\t"
+	                //   :"+r"(x));
+	// __asm__ volatile (".rept 1\n\t"
+	//                   "nop\n\t"
+	//                   ".endr\n\t");
+	PROFILER_ICACHE_END();
+  101410:	b0002673          	csrr	a2,mcycle
+  101414:	b02026f3          	csrr	a3,minstret
+  101418:	b0402773          	csrr	a4,mhpmcounter4
+
+		test();
+  101454:	f15ff0ef          	jal	ra,101368 <test>
+  101458:	fb9ff06f          	j	101410 <icache_test+0x68>
+
+00101368 <test>:
+  101368:	00000013          	nop
+  10136c:	00000013          	nop
+  101370:	00000013          	nop
+  101374:	00000013          	nop
+  101378:	00000013          	nop
+  10137c:	00000013          	nop
+  101380:	00000013          	nop
+  101384:	00000013          	nop
+  101388:	00000013          	nop
+  10138c:	00000013          	nop
+  101390:	00000013          	nop
+  101394:	00000013          	nop
+  101398:	00000013          	nop
+  10139c:	00000013          	nop
+  1013a0:	00000013          	nop
+  1013a4:	00008067          	ret

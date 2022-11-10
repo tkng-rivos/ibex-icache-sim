@@ -86,16 +86,17 @@ python3 branch.py
 ```
 should yield something like the following:
 ```bash
-tkng:~$ python3 branch.py
+tkng: ~/ibex_icache_sim/test$ python3 branch.py
+Starting sim at address 0x1013c4
+Running...
 Could not find instruction at address 0x1013d4! Ending sim...
-      Address Instruction  Hits  Misses
-       1013c4          li     0       1
-       1013c8        addi    15       1
-       1013cc         jal    16       0
-       1013d0        bnez    15       1
-       101368         nop    15       1
-       10136c         ret    16       0
-Total                        77       4
-Hit rate: 95.06%
+      Address    Instruction  Hits  Misses Hit Rate
+       1013c4       li s0,16     0       1    0.00%
+       1013c8  addi s0,s0,-1    15       1   93.75%
+       1013cc  jal ra,101368    16       0  100.00%
+       1013d0 bnez s0,1013c8    15       1   93.75%
+       101368            nop    15       1   93.75%
+       10136c            ret    16       0  100.00%
+Total                           77       4   95.06%
 Instructions run: 81
 ```

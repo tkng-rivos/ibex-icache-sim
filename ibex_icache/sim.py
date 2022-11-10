@@ -64,7 +64,7 @@ class ICacheSim:
         self.result['data'] = dict()
         for addr, instr in self.instrs.items():
             self.result['data'][addr] = {
-                'instr': instr['op'],
+                'instr': instr['raw'],
                 'hits': 0,
                 'misses': 0,
             }
@@ -81,26 +81,29 @@ class ICacheSim:
         f_instr = []
         f_hits = []
         f_misses = []
+        f_hit_rate = []
         for addr, instr, hits, misses in raw_data:
             f_addr.append(addr)
             f_instr.append(instr)
             f_hits.append(hits)
             f_misses.append(misses)
+            f_hit_rate.append('{:.2f}%'.format(100 * hits / (hits + misses)))
         f_row_hd.append('Total')
         f_addr.append('')
         f_instr.append('')
         f_hits.append(sum(f_hits))
         f_misses.append(sum(f_misses))
+        f_hit_rate.append('{:.2f}%'.format(100 * f_hits[-1] / self.result['instrs_ret']))
         d = {
             '': f_row_hd,
             'Address': f_addr,
             'Instruction': f_instr,
             'Hits': f_hits,
-            'Misses': f_misses
+            'Misses': f_misses,
+            'Hit Rate': f_hit_rate 
         }
         df = pd.DataFrame(data=d)
         print(df.to_string(index=False))
-        print('Hit rate: {0:.2f}%'.format(100 * f_hits[-1] / self.result['instrs_ret']))
         print('Instructions run: {0}'.format(self.result['instrs_ret']))
 
     def sim(self, cache, max_instrs):
@@ -108,6 +111,8 @@ class ICacheSim:
         if f'{self.start_addr:x}' not in self.instrs:
             raise Exception(f'Could not find start instruction at 0x{self.start_addr:x}')
         else:
+            print(f'Starting sim at address 0x{self.start_addr:x}')
+            print('Running...')
             # Simulation Initialization
             pc = self.start_addr # Program Counter
             instrs_ret = 0
@@ -127,7 +132,7 @@ class ICacheSim:
                 instr = self.instrs[pc_key]
                 match instr['op']:
                     case 'jal' | 'j':
-                        self.regs.setreg(instr['rd'], pc + 4)
+                        self.regs.setreg(instr['rd'], pc + instr['size'])
                         pc = int(instr['i'], 16)
                     case 'bne' | 'bnez':
                         rs1 = self.regs.getreg(instr['rs1'])
@@ -135,39 +140,39 @@ class ICacheSim:
                         if rs1 != rs2:
                             pc = int(instr['i'], 16)
                         else:
-                            pc += 4
+                            pc += instr['size']
                     case 'beq' | 'beqz':
                         rs1 = self.regs.getreg(instr['rs1'])
                         rs2 = self.regs.getreg(instr['rs2'])
                         if rs1 == rs2:
                             pc = int(instr['i'], 16)
                         else:
-                            pc += 4
+                            pc += instr['size']
                     case 'blt' | 'bltu': 
                         rs1 = self.regs.getreg(instr['rs1'])
                         rs2 = self.regs.getreg(instr['rs2'])
                         if rs1 < rs2:
                             pc = int(instr['i'], 16)
                         else:
-                            pc += 4
+                            pc += instr['size']
                     case 'bge' | 'bgeu':
                         rs1 = self.regs.getreg(instr['rs1'])
                         rs2 = self.regs.getreg(instr['rs2'])
                         if rs1 <= rs2:
                             pc = int(instr['i'], 16)
                         else:
-                            pc += 4
+                            pc += instr['size']
                     case 'li':
                         self.regs.setreg(instr['rs1'], instr['i'])
-                        pc += 4
+                        pc += instr['size']
                     case 'addi':
                         rs1 = self.regs.getreg(instr['rs1'])
                         imm = instr['i']
                         self.regs.setreg(instr['rd'], rs1 + imm)
-                        pc += 4
+                        pc += instr['size']
                     case 'ret':
                         pc = self.regs.getreg('ra')
                     case _:
-                        pc += 4
+                        pc += instr['size']
                 instrs_ret += 1
             self.result['instrs_ret'] = instrs_ret

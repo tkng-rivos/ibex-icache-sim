@@ -4,6 +4,10 @@ def parse_riscv(file):
         header_tokens = header.split(sep=None)
         asm_type = header_tokens[0]
         start_addr = header_tokens[1]
+        if len(header_tokens) > 2:
+            compressed = header_tokens[2] == 'C'
+        else:
+            compressed = False
         # Python 3.10!
         match asm_type:
             case "#disas":
@@ -16,9 +20,14 @@ def parse_riscv(file):
                     if tokens[0][-1] == ':':
                         addr = tokens[0][:-1]
                         op = tokens[2]
+                        if len(tokens) > 3:
+                            raw = op + ' ' + tokens[3]
+                        else:
+                            raw = op
                         instr = {
                             'op': op,  # Operation
-                            'c': False # Compressed?
+                            'size': 2 if compressed and len(tokens[1]) == 4 else 4, # Compressed?
+                            'raw': raw # For displaying
                         }
                         match op:
                             case 'jal':
